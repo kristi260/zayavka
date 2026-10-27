@@ -74,6 +74,18 @@ input[type=date]{width:auto;min-width:9.5em;display:inline-block;font-weight:500
 .party h3{margin:0 0 2px;font:700 10pt var(--head);color:var(--g1)}
 .party h3 span{font-weight:600;color:var(--ink)}
 .mp{position:absolute;right:1mm;bottom:-1.5mm;width:19mm;height:19mm;border:1px dashed #b9c6a8;border-radius:50%;display:grid;place-items:center;font:600 7pt var(--head);color:#b3c0a3}
+.combo{position:relative}
+.combo textarea{padding-right:32px}
+.cbtn{position:absolute;right:0;top:-2px;width:30px;height:30px;padding:0;border:0;border-radius:4px;background:transparent;color:var(--g1);display:grid;place-items:center;cursor:pointer}
+.cbtn:hover,.combo.open .cbtn{background:var(--g-tint)}
+.cbtn svg{transition:transform .15s}.combo.open .cbtn svg{transform:rotate(180deg)}
+.clist{display:none;position:absolute;left:-9px;right:-9px;top:100%;z-index:30;margin:3px 0 0;padding:4px 0;list-style:none;background:#fff;border:1px solid var(--g-line);border-top:2px solid var(--g1);border-radius:0 0 6px 6px;box-shadow:0 14px 34px rgba(20,40,10,.28);max-height:280px;overflow:auto}
+.combo.open .clist{display:block}
+.clist li{padding:9px 14px;font:500 10.5pt/1.3 var(--body);color:var(--ink);cursor:pointer;border-left:3px solid transparent}
+.clist li:hover,.clist li.sel{background:var(--g-tint);border-left-color:var(--g2)}
+.clist li.sel{font-weight:600;color:var(--g1)}
+.sheet>table.up{z-index:40}
+.pdf .cbtn,.pdf .clist{display:none}
 .stampimg{position:absolute;left:3mm;bottom:-.8mm;width:60mm;height:auto;transform:rotate(-2.5deg);transform-origin:left bottom;mix-blend-mode:multiply;pointer-events:none;user-select:none;z-index:2}
 .sheet.nosign .stampimg{display:none}
 #signBtn[aria-pressed="true"]{background:rgba(149,184,31,.22);border-color:#95b81f}
@@ -96,6 +108,9 @@ input[type=date]{width:auto;min-width:9.5em;display:inline-block;font-weight:500
 /* мобільний макет */
 @media (max-width:640px){
  .sheet::after{top:42%;width:100%}
+ .cbtn{width:40px;height:38px;top:-4px}
+ .clist{max-height:60vh}
+ .clist li{padding:13px 14px;font-size:16px}
  .micro{display:none}
  .bar{padding-left:calc(14px + env(safe-area-inset-left,0px));padding-right:calc(14px + env(safe-area-inset-right,0px))}
  .bar small{display:none}
@@ -120,7 +135,7 @@ input[type=date]{width:auto;min-width:9.5em;display:inline-block;font-weight:500
 @media print{
  @page{size:A4;margin:0}
  html,body{background:#fff}
- .bar,#toast{display:none}
+ .bar,#toast,.cbtn,.clist{display:none}
  .sheet:not(.pdf){margin:0;max-width:none;box-shadow:none}
  input,textarea{border-bottom:0!important}
  input[type=date]{display:none}
@@ -130,7 +145,7 @@ input[type=date]{width:auto;min-width:9.5em;display:inline-block;font-weight:500
 </head>
 <body>
 <div class="bar">
-  <div class="brand"><svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="none" stroke="#95b81f" stroke-width="1.5"/><path d="M20 8c8 3 11 11 6 18-3 4-7 5-10 3-2-5-1-15 4-21z" fill="#95b81f"/><path d="M19 29c1-6 2-11 5-16" stroke="#18300d" stroke-width="1.4" fill="none"/></svg><div><b>Заявка на транспортне обслуговування</b><small>Заповніть підкреслені поля і натисніть «Зберегти в PDF» — файл завантажиться автоматично.</small></div></div>
+  <div class="brand"><svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="none" stroke="#95b81f" stroke-width="1.5"/><path d="M20 8c8 3 11 11 6 18-3 4-7 5-10 3-2-5-1-15 4-21z" fill="#95b81f"/><path d="M19 29c1-6 2-11 5-16" stroke="#18300d" stroke-width="1.4" fill="none"/></svg><div><b>Заявка на транспортне обслуговування</b><small>Заповніть підкреслені поля (де є стрілка ▾ — оберіть зі списку або введіть своє) і натисніть «Зберегти в PDF».</small></div></div>
   <div class="btns">
     <button type="button" id="signBtn" aria-pressed="true">Підпис і печатка: так</button>
     <button type="button" id="clearBtn">Очистити</button>
@@ -157,7 +172,7 @@ input[type=date]{width:auto;min-width:9.5em;display:inline-block;font-weight:500
   <table class="t1">
     <tr><td>1</td><td>Дата та час завантаження</td><td><textarea rows="1" data-k="r1" aria-label="Дата та час завантаження">21.10.2026</textarea></td></tr>
     <tr><td>2</td><td>Маршрут перевезення</td><td><textarea rows="1" data-k="r2" aria-label="Маршрут перевезення">Україна — Чехія</textarea></td></tr>
-    <tr><td>3</td><td>Адреса завантаження (назва підприємства, адреса, контактні особи)</td><td><textarea rows="1" data-k="r3" aria-label="Адреса завантаження">FCA с. Хлопчиці, Львівська область</textarea></td></tr>
+    <tr><td>3</td><td>Адреса завантаження (назва підприємства, адреса, контактні особи)</td><td><textarea rows="1" data-k="r3" aria-label="Адреса завантаження">FCA м. Хлопчиці, Львівська область</textarea></td></tr>
     <tr><td>4</td><td>Адреса митного оформлення</td><td><textarea rows="1" data-k="r4" aria-label="Адреса митного оформлення">м. Городок</textarea></td></tr>
     <tr><td>5</td><td>Вимоги до автомобіля</td><td><textarea rows="1" data-k="r5" aria-label="Вимоги до автомобіля">Бочка-сипучка, 23 т</textarea></td></tr>
     <tr><td>6</td><td>Потрібні товаросупровідні документи на вантаж, додаткові умови перевезення</td><td><textarea rows="1" data-k="r6" aria-label="Документи та додаткові умови"></textarea></td></tr>
@@ -279,6 +294,8 @@ SWIFT: BREXPLPWXXX</textarea>
   function buildPdfNode(){
     var c=sheet.cloneNode(true);
     c.removeAttribute("id"); c.classList.add("pdf");
+    [].forEach.call(c.querySelectorAll(".cbtn,.clist"),function(n){ n.parentNode.removeChild(n); });
+    [].forEach.call(c.querySelectorAll(".up"),function(n){ n.classList.remove("up"); });
     var src=sheet.querySelectorAll("textarea,input"), dst=c.querySelectorAll("textarea,input");
     for(var i=0;i<dst.length;i++){
       var el=dst[i];
@@ -298,7 +315,7 @@ SWIFT: BREXPLPWXXX</textarea>
 
   function makePdf(){
     if(typeof html2pdf==="undefined"){ toast("Не вдалося завантажити модуль PDF. Оновіть сторінку."); return Promise.resolve(); }
-    pdfBtn.disabled=true; var label=pdfBtn.textContent; pdfBtn.textContent="Формування PDF…";
+    closeCombo(); pdfBtn.disabled=true; var label=pdfBtn.textContent; pdfBtn.textContent="Формування PDF…";
     fmtDate();
     var node=buildPdfNode(); host.appendChild(node);
     var ready=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
@@ -330,6 +347,48 @@ SWIFT: BREXPLPWXXX</textarea>
     .catch(function(e){ console.error(e); toast("Не вдалося створити PDF. Спробуйте ще раз."); })
     .then(function(){ host.removeChild(node); pdfBtn.disabled=false; pdfBtn.textContent=label; });
   }
+
+  /* списки вибору: можна обрати зі списку або ввести своє */
+  var OPTS={
+    r3:["FCA м. Хлопчиці, Львівська область","FCA м. Хмільник, Вінницька область","FCA м. Фастів, Київська область","FCA м. Люберці, Київська область","FCA м. Настасів, Тернопільська область"],
+    r4:["м. Муроване","м. Городок","м. Львів","м. Настасів","м. Київ"],
+    r5:["Бочка-сипучка, 23 т","Тент","Цистерна","Рефрижератор"],
+    r13:["Післяоплата","На завантаженні","До перетину кордону"],
+    r14:["Перерахунок"]
+  };
+  var openCombo=null;
+  function closeCombo(){
+    if(!openCombo) return;
+    openCombo.classList.remove("open");
+    var tb=openCombo.closest("table"); if(tb) tb.classList.remove("up");
+    openCombo.querySelector(".cbtn").setAttribute("aria-expanded","false");
+    openCombo=null;
+  }
+  Object.keys(OPTS).forEach(function(k){
+    var ta=sheet.querySelector('[data-k="'+k+'"]'); if(!ta) return;
+    var w=document.createElement("div"); w.className="combo";
+    ta.parentNode.insertBefore(w,ta); w.appendChild(ta);
+    var b=document.createElement("button"); b.type="button"; b.className="cbtn";
+    b.setAttribute("aria-label","Обрати зі списку"); b.setAttribute("aria-haspopup","listbox"); b.setAttribute("aria-expanded","false");
+    b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>';
+    var ul=document.createElement("ul"); ul.className="clist"; ul.setAttribute("role","listbox");
+    OPTS[k].forEach(function(o){
+      var li=document.createElement("li"); li.setAttribute("role","option"); li.textContent=o;
+      li.addEventListener("click",function(){ ta.value=o; size(ta); save(); closeCombo(); });
+      ul.appendChild(li);
+    });
+    b.addEventListener("click",function(e){
+      e.stopPropagation();
+      var was=(openCombo===w); closeCombo(); if(was) return;
+      var cur=ta.value.trim();
+      [].forEach.call(ul.children,function(li){ li.classList.toggle("sel",li.textContent===cur); });
+      w.classList.add("open"); var tb=w.closest("table"); if(tb) tb.classList.add("up");
+      b.setAttribute("aria-expanded","true"); openCombo=w;
+    });
+    w.appendChild(b); w.appendChild(ul);
+  });
+  document.addEventListener("click",function(e){ if(openCombo&&!openCombo.contains(e.target)) closeCombo(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeCombo(); });
 
   sheet.addEventListener("input",function(e){ size(e.target); save(); });
   dateEl.addEventListener("input",function(){ fmtDate(); save(); });
